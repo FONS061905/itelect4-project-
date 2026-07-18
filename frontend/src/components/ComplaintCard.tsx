@@ -1,10 +1,15 @@
 import React from 'react'
 import StatusBadge from './StatusBadge'
-import type { Item } from '../models'
+import type { Item } from '../types'
 
-export default function ComplaintCard({ item, onSelect }: { item: Item; onSelect?: (id: number) => void }) {
+interface ComplaintCardProps {
+  item: Item
+  onSelect?: (id: number) => void
+}
+
+export default function ComplaintCard({ item, onSelect }: ComplaintCardProps) {
   return (
-    <div onClick={() => onSelect && onSelect(item.id)} style={{ border: '1px solid #e6e6e6', padding: 12, borderRadius: 8, cursor: 'pointer' }}>
+    <div onClick={() => onSelect?.(item.id)} style={{ border: '1px solid #e6e6e6', padding: 12, borderRadius: 8, cursor: 'pointer' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontWeight: 700 }}>{item.title}</div>
         <StatusBadge status={item.status} />

@@ -1,65 +1,77 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import ComplaintCard from './components/ComplaintCard'
+import StatusBadge from './components/StatusBadge'
 import Usercard from './components/Usercard'
-import type { Item, User } from './models'
+import type { Item, ItemStatus, User } from './types'
 
-const API_BASE = import.meta.env.VITE_API_BASE || ''
+const mockUsers: User[] = [
+  { id: 1, name: 'Ariel Santos', role: 'student', contact: 'ariel@example.com' },
+  { id: 2, name: 'Mariel Cruz', role: 'security', contact: 'mariel@example.com' },
+]
+
+const mockItems: Item[] = [
+  {
+    id: 101,
+    title: 'Lost ID Card',
+    type: 'lost',
+    description: 'Student ID card with blue lanyard, lost near the library entrance.',
+    location: 'Main library entrance',
+    reporterId: 1,
+    status: ItemStatus.Reported,
+    createdAt: '2026-07-18T09:00:00Z',
+  },
+  {
+    id: 102,
+    title: 'Found Wristwatch',
+    type: 'found',
+    description: 'Silver wristwatch found in the lecture hall foyer.',
+    location: 'Lecture hall foyer',
+    reporterId: 2,
+    status: ItemStatus.Claimed,
+    createdAt: '2026-07-18T10:30:00Z',
+  },
+]
 
 export default function App() {
-  const [items, setItems] = useState<Item[]>([])
-  const [users, setUsers] = useState<User[]>([])
-  const [selected, setSelected] = useState<Item | null>(null)
-  const [counts, setCounts] = useState({ totalItems: 0, openClaims: 0 })
-
-  useEffect(() => {
-    fetch(`${API_BASE}/api/items`).then(r => r.json()).then(setItems)
-    fetch(`${API_BASE}/api/users`).then(r => r.json()).then(setUsers)
-
-    const es = new EventSource(`${API_BASE}/api/counts/stream`)
-    es.onmessage = (e) => { try { setCounts(JSON.parse(e.data)) } catch {} }
-    return () => es.close()
-  }, [])
-
-  const claim = async (itemId: number, claimantId: number) => {
-    await fetch(`${API_BASE}/api/items/${itemId}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ claimantId }) })
-    const updated = await fetch(`${API_BASE}/api/items`).then(r => r.json())
-    setItems(updated)
-  }
+  const [items] = useState<Item[]>(mockItems)
+  const [users] = useState<User[]>(mockUsers)
+  const [selected, setSelected] = useState<Item | null>(items[0] ?? null)
 
   return (
-    <div style={{ display: 'flex', gap: 24, padding: 24 }}>
-      <div style={{ width: 360 }}>
-        <h2>Lost & Found</h2>
-        <div style={{ marginBottom: 8, color: '#333' }}>Live: {counts.totalItems} items • Pending claims: {counts.openClaims}</div>
-        <div style={{ display: 'grid', gap: 12 }}>
-          {items.map(i => <ComplaintCard key={i.id} item={i} onSelect={(id)=>{ const it = items.find(x=>x.id===id); setSelected(it||null); }} />)}
+    <div style={{ padding: 24, display: 'grid', gap: 24 }}>
+      <div>
+        <h1>GT2 Part 1 Demo</h1>
+        <p>Rendering three typed components with mock data.</p>
+      </div>
+
+      <div style={{ display: 'grid', gap: 20, gridTemplateColumns: '1fr 1fr' }}>
+        <div>
+          <h2>Complaint Card</h2>
+          <ComplaintCard item={items[0]} onSelect={setSelected} />
+        </div>
+
+        <div>
+          <h2>Status Badge</h2>
+          <StatusBadge status={items[0].status} />
+        </div>
+
+        <div>
+          <h2>User Card</h2>
+          <Usercard user={users[0]} />
         </div>
       </div>
-      <div style={{ flex: 1 }}>
-        <h3>Detail</h3>
+
+      <div>
+        <h2>Selected Item</h2>
         {selected ? (
           <div>
-            <h2>{selected.title}</h2>
+            <p><strong>{selected.title}</strong></p>
             <p>{selected.description}</p>
-            <p><strong>Location:</strong> {selected.location}</p>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <select id='claimant-select'>
-                <option value=''>-- choose user --</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
-              </select>
-              <button onClick={async ()=>{ const sel = (document.getElementById('claimant-select') as HTMLSelectElement).value; if(sel){ await claim(selected.id, Number(sel)); alert('Claim submitted'); } }}>Claim</button>
-              <button onClick={async ()=>{ const res = await fetch(`${API_BASE}/api/items/${selected.id}/suggest-description`, { method: 'POST' }); const js = await res.json(); alert(js.suggestion); }}>Suggest description</button>
-            </div>
+            <p>{selected.location}</p>
           </div>
         ) : (
-          <div>Select an item to view details</div>
+          <p>No item selected yet.</p>
         )}
-      </div>
-      <div style={{ width: 240 }}>
-        <h4>Users</h4>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {users.map(u => <Usercard key={u.id} user={u} />)}
-        </div>
       </div>
     </div>
   )

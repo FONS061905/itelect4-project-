@@ -1,7 +1,11 @@
 import React from 'react'
-import type { User } from '../models'
+import type { User } from '../types'
 
-export default function Usercard({ user }: { user: User }) {
+interface UsercardProps {
+  user: User
+}
+
+export default function Usercard({ user }: UsercardProps) {
   return (
     <div style={{ border: '1px solid #eee', padding: 8, borderRadius: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
       <div style={{ width: 40, height: 40, borderRadius: 20, background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{user.name.charAt(0)}</div>

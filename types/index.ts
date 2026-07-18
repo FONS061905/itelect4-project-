@@ -42,6 +42,11 @@ y: number;
 };
 // Alias for a function signature
 export type Formatter = (value: number) => string;
+// Utility type helpers
+export type UserUpdate = Partial<User>;
+export type UserPreview = Pick<User, "id" | "name" | "role">;
+export type PublicUser = Omit<User, "email" | "isActive">;
+export type RoleCount = Record<"student" | "admin" | "instructor", number>;
 // Using them
 const studentId: ID = "S2026-001";
 const position: Coordinate = { x: 10, y: 20 };

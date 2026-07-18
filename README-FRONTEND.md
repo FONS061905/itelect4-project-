@@ -1,38 +1,47 @@
-Frontend scaffolding
+Lost & Found Tracker Frontend
 
-This repository contains TypeScript server code and a set of React component files under `src/components` plus `src/App.tsx` as a UI scaffold.
+This repository contains a working Lost & Found tracker app with a TypeScript Express backend and a Vite React frontend.
 
-To run the frontend locally you can create a small Vite React app and copy these files into `src/` of that project, or integrate into your existing React setup.
+The app includes:
+- `src/models.ts` — shared TypeScript models for users, items, claims, and status enums.
+- `src/server.ts` — backend API with in-memory stores, claim workflows, SSE counts, and a suggestion endpoint.
+- `frontend/src/App.tsx` — React UI with list/detail layout, live counts via EventSource, and claim interactions.
+- `frontend/src/components` — reusable UI components for item cards, user cards, and status badges.
 
-Quick setup (recommended):
+How to run this app:
 
-1. Create a Vite React project alongside this repo (or inside it):
-
-```bash
-npx create-vite@latest frontend -- --template react-ts
-cd frontend
-npm install
-```
-
-2. Copy the `src/components` folder and `src/App.tsx` from this repo into the new `frontend/src` folder.
-
-3. Update `frontend/package.json` proxy or run the backend on port 3000 and set `VITE_API_URL` accordingly. Or use a simple proxy in `vite.config.ts`.
-
-4. Start backend from the root:
+1. Start the backend from the repo root:
 
 ```bash
-npm run start
+npm run start:backend
 ```
 
-5. Start frontend:
+2. Start the frontend from the `frontend` folder:
 
 ```bash
 cd frontend
+npm install
 npm run dev
 ```
 
-This UI includes:
-- `StatusBadge` — colored badge for item lifecycle states.
-- `Usercard` — compact user display.
-- `ComplaintCard` — list card for items (title/location/summary).
-- `App.tsx` — list/detail layout, SSE counts stream, claim flow, and simple generative suggestion call.
+3. Open the frontend in your browser at:
+
+```bash
+http://localhost:5174/
+```
+
+4. The backend API is available at:
+
+```bash
+http://localhost:3000/
+```
+
+If the frontend still needs to connect to the backend, make sure the backend runs on port `3000` and that `frontend/vite.config.ts` proxies `/api` to `http://localhost:3000`.
+
+What this app demonstrates:
+- A list/detail interface for lost and found items
+- User roles with `student`, `security`, and `admin`
+- Item and claim status enums for lifecycle states
+- Live count updates using server-sent events
+- Generic TypeScript types, utility type aliases, and strict mode support
+- A simple generative description suggestion endpoint
