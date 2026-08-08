@@ -1,16 +1,34 @@
-import React from "react";
 import StatusBadge from "./StatusBadge";
 import type { Item } from "../models";
 
-export default function ComplaintCard({ item, onSelect }: { item: Item; onSelect?: (id: number) => void }) {
+interface ComplaintCardProps {
+  item: Item;
+  onSelect?: (id: number) => void;
+  variant?: "default" | "compact";
+}
+
+export default function ComplaintCard({ item, onSelect, variant = "default" }: ComplaintCardProps) {
+  const isCompact = variant === "compact";
+
   return (
-    <div onClick={() => onSelect && onSelect(item.id)} style={{ border: "1px solid #e6e6e6", padding: 12, borderRadius: 8, cursor: "pointer" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontWeight: 700 }}>{item.title}</div>
+    <div
+      onClick={() => onSelect && onSelect(item.id)}
+      className={`cursor-pointer rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 ${
+        isCompact ? "p-2" : "p-3"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div className={`font-bold text-gray-900 dark:text-white ${isCompact ? "text-sm" : "text-base"}`}>
+          {item.title}
+        </div>
         <StatusBadge status={item.status} />
       </div>
-      <div style={{ fontSize: 13, color: "#444", marginTop: 8 }}>{item.location}</div>
-      <div style={{ marginTop: 8, fontSize: 13, color: "#666" }}>{item.description?.slice(0, 120)}</div>
+      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">{item.location}</div>
+      {!isCompact && (
+        <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+          {item.description?.slice(0, 120)}
+        </div>
+      )}
     </div>
   );
 }
