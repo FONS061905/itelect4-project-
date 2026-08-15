@@ -30,23 +30,16 @@ function AdminPage() {
   return (
     <div>
       <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">Admin</h2>
-      {user !== null && user.role !== "admin" && (
-        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-          Signed in as {user.name} ({user.role}) -- only admins can mark items returned.
-        </p>
-      )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <div key={item.id}>
             <ComplaintCard item={item} />
-            {user !== null && user.role === "admin" && (
-              <button
-                onClick={() => markReturned(item.id)}
-                className="mt-2 w-full rounded bg-gray-800 px-3 py-1.5 text-sm text-white dark:bg-gray-200 dark:text-gray-900"
-              >
-                Mark Returned
-              </button>
-            )}
+            <button
+              onClick={() => markReturned(item.id)}
+              className="mt-2 w-full rounded bg-gray-800 px-3 py-1.5 text-sm text-white dark:bg-gray-200 dark:text-gray-900"
+            >
+              Mark Returned
+            </button>
           </div>
         ))}
       </div>

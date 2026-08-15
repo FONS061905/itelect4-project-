@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import type { Item, User } from "../models";
-import useAuthStore from "../store/authStore";
 
 function ItemDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
 
   const [item, setItem] = useState<Item | null | undefined>(undefined);
   const [users, setUsers] = useState<User[]>([]);
@@ -59,28 +57,24 @@ function ItemDetailPage() {
         <strong>Location:</strong> {item.location}
       </p>
 
-      {user === null ? (
-        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Log in to claim this item.</p>
-      ) : (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <select
-            value={claimantId}
-            onChange={(e) => setClaimantId(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">-- choose claimant --</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
-            ))}
-          </select>
-          <button
-            onClick={claim}
-            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-blue-700"
-          >
-            Claim
-          </button>
-        </div>
-      )}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <select
+          value={claimantId}
+          onChange={(e) => setClaimantId(e.target.value)}
+          className="rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+        >
+          <option value="">-- choose claimant --</option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
+          ))}
+        </select>
+        <button
+          onClick={claim}
+          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          Claim
+        </button>
+      </div>
 
       <button
         onClick={suggestDescription}
