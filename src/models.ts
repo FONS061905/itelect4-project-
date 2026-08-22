@@ -41,3 +41,16 @@ export interface Claim {
   status: ClaimStatus;
   createdAt: string;
 }
+
+// json-server generates its own ids and stores everything as JSON, so
+// ids come back as strings instead of numbers. Both types below are
+// DERIVED from User/Item, so those stay the single source of truth.
+export type ApiUser = Omit<User, "id"> & { id: string };
+
+export type ApiItem = Omit<Item, "id" | "reporterId"> & {
+  id: string;
+  reporterId: string;
+};
+
+// What we SEND when creating one -- no id yet, the server makes it.
+export type NewItem = Omit<ApiItem, "id">;

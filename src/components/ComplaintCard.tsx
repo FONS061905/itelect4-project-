@@ -1,9 +1,9 @@
 import StatusBadge from "./StatusBadge";
-import type { Item } from "../models";
+import type { ApiItem } from "../models";
 
 interface ComplaintCardProps {
-  item: Item;
-  onSelect?: (id: number) => void;
+  item: ApiItem;
+  onSelect?: (id: string) => void;
   variant?: "default" | "compact";
 }
 
