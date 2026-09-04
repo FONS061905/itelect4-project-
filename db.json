@@ -1,0 +1,55 @@
+{
+  "items": [
+    {
+      "id": "1",
+      "title": "Black backpack",
+      "type": "lost",
+      "description": "Black backpack with a water bottle and notebook",
+      "location": "Library - 2nd floor",
+      "reporterId": "1",
+      "status": "reported",
+      "createdAt": "2026-08-15T04:16:55.767Z"
+    },
+    {
+      "id": "2",
+      "title": "Blue umbrella",
+      "type": "found",
+      "description": "Blue foldable umbrella left near the entrance",
+      "location": "Main Building - Lobby",
+      "reporterId": "2",
+      "status": "reported",
+      "createdAt": "2026-08-16T09:30:00.000Z"
+    },
+    {
+      "title": "toy car",
+      "type": "lost",
+      "description": "",
+      "location": "Lobby",
+      "reporterId": "2",
+      "status": "reported",
+      "createdAt": "2026-08-22T04:13:12.635Z",
+      "id": "8hnaV5W7Ts8"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "name": "alfonso",
+      "role": "student",
+      "contact": "alice@uni.edu"
+    },
+    {
+      "id": "2",
+      "name": "jhay vy",
+      "role": "security",
+      "contact": "sec@uni.edu"
+    },
+    {
+      "id": "3",
+      "name": "ian",
+      "role": "admin",
+      "contact": "admin@uni.edu"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

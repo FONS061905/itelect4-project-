@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import type { User } from "../models";
+import type { ApiUser } from "../models";
+import { fetchUsers } from "../api/client";
 import useAuthStore from "../store/authStore";
 
 function LoginPage() {
-  const [users, setUsers] = useState<User[]>([]);
+  const { data: users } = useQuery<ApiUser[]>({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+  });
   const [selectedId, setSelectedId] = useState<string>("");
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch("/api/users")
-      .then((res) => res.json())
-      .then((data: User[]) => setUsers(data));
-  }, []);
-
   const handleLogin = (): void => {
-    const user = users.find((u) => u.id === Number(selectedId));
+    const user = (users ?? []).find((u) => u.id === selectedId);
     if (!user) return;
     login(user); // 1. put the token + user in the store
     navigate("/admin"); // 2. then send them where they were going
@@ -24,14 +23,14 @@ function LoginPage() {
 
   return (
     <div className="max-w-sm">
-      <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">Login</h2>
+      <h2 className="mb-4 font-display text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Login</h2>
       <select
         value={selectedId}
         onChange={(e) => setSelectedId(e.target.value)}
         className="w-full rounded border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
       >
         <option value="">-- choose account --</option>
-        {users.map((u) => (
+        {(users ?? []).map((u) => (
           <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
         ))}
       </select>

@@ -1,9 +1,10 @@
 import { NavLink, Outlet } from "react-router";
-import useToggle from "../hooks/useToggle";
 import useAuthStore from "../store/authStore";
+import useUiStore from "../store/uiStore";
 
 function Layout() {
-  const [isDarkMode, toggleDarkMode] = useToggle(false);
+  const isDarkMode = useUiStore((state) => state.isDarkMode);
+  const toggleDarkMode = useUiStore((state) => state.toggleDarkMode);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
@@ -18,7 +19,7 @@ function Layout() {
     <div className={isDarkMode ? "dark" : ""}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <nav className="flex flex-wrap items-center gap-2 border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <span className="mr-4 font-bold text-gray-900 dark:text-white">Lost &amp; Found</span>
+          <span className="mr-4 font-display text-lg font-semibold tracking-tight text-gray-900 dark:text-white">Lost &amp; Found</span>
           <NavLink to="/" end className={linkClass}>Dashboard</NavLink>
           <NavLink to="/items" className={linkClass}>Items</NavLink>
           <NavLink to="/users" className={linkClass}>Users</NavLink>

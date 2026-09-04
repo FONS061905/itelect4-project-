@@ -1,6 +1,6 @@
-import type { User } from "../models";
+import type { ApiUser } from "../models";
 
-export default function Usercard({ user }: { user: User }) {
+export default function Usercard({ user }: { user: ApiUser }) {
   return (
     <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-800">
       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">
