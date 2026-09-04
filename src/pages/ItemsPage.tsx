@@ -1,5 +1,6 @@
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
 import ComplaintCard from "../components/ComplaintCard";
 import type { ApiItem, ApiUser, NewItem } from "../models";
@@ -7,6 +8,11 @@ import { ItemStatus } from "../models";
 import usePrevious from "../hooks/usePrevious";
 import useUiStore from "../store/uiStore";
 import { fetchItems, fetchUsers, createItem } from "../api/client";
+import { itemSchema } from "../schemas/itemSchema";
+import type { ItemFormValues } from "../schemas/itemSchema";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function ItemsPage() {
   const queryClient = useQueryClient();
@@ -27,28 +33,31 @@ function ItemsPage() {
   const setSearchTerm = useUiStore((state) => state.setSearchTerm);
   const previousSearch = usePrevious(searchTerm);
 
-  const [title, setTitle] = useState<string>("");
-  const [type, setType] = useState<"lost" | "found">("lost");
-  const [location, setLocation] = useState<string>("");
-  const [reporterId, setReporterId] = useState<string>("");
+  // useForm holds the values, runs the Zod schema, and stores the errors.
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ItemFormValues>({
+    resolver: zodResolver(itemSchema),
+    mode: "onBlur",
+    defaultValues: { title: "", type: "lost", location: "", reporterId: "" },
+  });
 
   const addItem = useMutation({
     mutationFn: createItem,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
-      setTitle("");
-      setLocation("");
-      setReporterId("");
+      reset();
     },
   });
 
-  const handleAdd = (): void => {
+  // handleSubmit only calls this after the schema passes.
+  const onSubmit = (values: ItemFormValues): void => {
     const newItem: NewItem = {
-      title,
-      type,
+      ...values,
       description: "",
-      location,
-      reporterId,
       status: ItemStatus.Reported,
       createdAt: new Date().toISOString(),
     };
@@ -75,45 +84,74 @@ function ItemsPage() {
     <div>
       <h2 className="mb-4 font-display text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Items</h2>
 
-      <div className="mb-6 flex flex-wrap items-end gap-2 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Item title"
-          className="rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-        />
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value === "found" ? "found" : "lost")}
-          className="rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-        >
-          <option value="lost">Lost</option>
-          <option value="found">Found</option>
-        </select>
-        <input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Location"
-          className="rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-        />
-        <select
-          value={reporterId}
-          onChange={(e) => setReporterId(e.target.value)}
-          className="rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-        >
-          <option value="">-- reporter --</option>
-          {(users ?? []).map((u) => (
-            <option key={u.id} value={u.id}>{u.name}</option>
-          ))}
-        </select>
-        <button
-          onClick={handleAdd}
-          disabled={title === "" || location === "" || reporterId === "" || addItem.isPending}
-          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:bg-gray-400"
-        >
-          {addItem.isPending ? "Saving..." : "Report Item"}
-        </button>
-      </div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="mb-6 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+      >
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="grid gap-1.5">
+            <Label htmlFor="title" className="text-foreground">Title</Label>
+            <Input
+              id="title"
+              {...register("title")}
+              aria-invalid={errors.title ? true : undefined}
+              placeholder="Item title"
+            />
+            {errors.title && (
+              <p className="text-sm text-red-600">{errors.title.message}</p>
+            )}
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="type" className="text-foreground">Type</Label>
+            <select
+              id="type"
+              {...register("type")}
+              className="h-8 rounded-lg border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="lost">Lost</option>
+              <option value="found">Found</option>
+            </select>
+            {errors.type && (
+              <p className="text-sm text-red-600">{errors.type.message}</p>
+            )}
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="location" className="text-foreground">Location</Label>
+            <Input
+              id="location"
+              {...register("location")}
+              aria-invalid={errors.location ? true : undefined}
+              placeholder="Location"
+            />
+            {errors.location && (
+              <p className="text-sm text-red-600">{errors.location.message}</p>
+            )}
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="reporterId" className="text-foreground">Reporter</Label>
+            <select
+              id="reporterId"
+              {...register("reporterId")}
+              className="h-8 rounded-lg border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">-- reporter --</option>
+              {(users ?? []).map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
+            {errors.reporterId && (
+              <p className="text-sm text-red-600">{errors.reporterId.message}</p>
+            )}
+          </div>
+
+          <Button type="submit" disabled={addItem.isPending}>
+            {addItem.isPending ? "Saving..." : "Report Item"}
+          </Button>
+        </div>
+      </form>
       {addItem.isError && (
         <p className="mb-4 text-sm text-red-700">{addItem.error.message}</p>
       )}
