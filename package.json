@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "api": "json-server db.json --port 3001",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "start": "vite",
@@ -24,7 +23,6 @@
     "@types/react-dom": "^18.3.7",
     "@types/ws": "^8.5.4",
     "@vitejs/plugin-react": "^5.0.0",
-    "json-server": "^1.0.0-beta.15",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.11",
     "typescript": "^6.0.3",

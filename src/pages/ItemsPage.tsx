@@ -3,11 +3,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
 import ComplaintCard from "../components/ComplaintCard";
-import type { ApiItem, ApiUser, NewItem } from "../models";
+import type { ApiItem, Location, NewItem } from "../models";
 import { ItemStatus } from "../models";
 import usePrevious from "../hooks/usePrevious";
 import useUiStore from "../store/uiStore";
-import { fetchItems, fetchUsers, createItem } from "../api/client";
+import { fetchItems, createItem } from "../api/items";
+import { fetchLocations } from "../api/locations";
 import { itemSchema } from "../schemas/itemSchema";
 import type { ItemFormValues } from "../schemas/itemSchema";
 import { Button } from "@/components/ui/button";
@@ -22,9 +23,10 @@ function ItemsPage() {
     queryFn: fetchItems,
   });
 
-  const { data: users } = useQuery<ApiUser[]>({
-    queryKey: ["users"],
-    queryFn: fetchUsers,
+  // The location dropdown is filled from the live API.
+  const { data: locations } = useQuery<Location[]>({
+    queryKey: ["locations"],
+    queryFn: fetchLocations,
   });
 
   // Moved to the store -- both the nav bar's theme and this search box
@@ -42,7 +44,7 @@ function ItemsPage() {
   } = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema),
     mode: "onBlur",
-    defaultValues: { title: "", type: "lost", location: "", reporterId: "" },
+    defaultValues: { title: "", type: "lost", location: "" },
   });
 
   const addItem = useMutation({
@@ -59,7 +61,6 @@ function ItemsPage() {
       ...values,
       description: "",
       status: ItemStatus.Reported,
-      createdAt: new Date().toISOString(),
     };
     addItem.mutate(newItem);
   };
@@ -71,7 +72,7 @@ function ItemsPage() {
   if (isError) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-red-700">
-        {error.message} -- is json-server running on port 3001?
+        {error.message} -- is the backend running?
       </div>
     );
   }
@@ -119,31 +120,19 @@ function ItemsPage() {
 
           <div className="grid gap-1.5">
             <Label htmlFor="location" className="text-foreground">Location</Label>
-            <Input
+            <select
               id="location"
               {...register("location")}
               aria-invalid={errors.location ? true : undefined}
-              placeholder="Location"
-            />
-            {errors.location && (
-              <p className="text-sm text-red-600">{errors.location.message}</p>
-            )}
-          </div>
-
-          <div className="grid gap-1.5">
-            <Label htmlFor="reporterId" className="text-foreground">Reporter</Label>
-            <select
-              id="reporterId"
-              {...register("reporterId")}
               className="h-8 rounded-lg border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
-              <option value="">-- reporter --</option>
-              {(users ?? []).map((u) => (
-                <option key={u.id} value={u.id}>{u.name}</option>
+              <option value="">-- location --</option>
+              {(locations ?? []).map((l) => (
+                <option key={l.code} value={l.name}>{l.name}</option>
               ))}
             </select>
-            {errors.reporterId && (
-              <p className="text-sm text-red-600">{errors.reporterId.message}</p>
+            {errors.location && (
+              <p className="text-sm text-red-600">{errors.location.message}</p>
             )}
           </div>
 

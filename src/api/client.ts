@@ -1,56 +1,41 @@
-import type { ApiItem, ApiUser, ItemStatus, NewItem } from "../models";
+import useAuthStore from "../store/authStore";
 
-export const API_URL = "http://localhost:3001";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
 
-// GET /items -> the whole list
-export async function fetchItems(): Promise<ApiItem[]> {
-  const res = await fetch(`${API_URL}/items`);
-  if (!res.ok) {
-    throw new Error("Could not load items");
+// Every request goes through here: it adds the JSON header, the
+// Bearer token when someone is logged in, and turns error replies into
+// thrown Errors carrying the server's own message.
+export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const token = useAuthStore.getState().token;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
-  return res.json();
-}
 
-// GET /items/:id -> one item
-export async function fetchItemById(id: string): Promise<ApiItem> {
-  const res = await fetch(`${API_URL}/items/${id}`);
-  if (!res.ok) {
-    throw new Error(`No item found with id "${id}".`);
-  }
-  return res.json();
-}
-
-// POST /items -> the row the server saved, with the id it made
-export async function createItem(newItem: NewItem): Promise<ApiItem> {
-  const res = await fetch(`${API_URL}/items`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newItem),
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
   });
-  if (!res.ok) {
-    throw new Error("Could not save the item");
-  }
-  return res.json();
-}
 
-// PATCH /items/:id -> used for claiming and marking an item returned
-export async function updateItemStatus(id: string, status: ItemStatus): Promise<ApiItem> {
-  const res = await fetch(`${API_URL}/items/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
-  });
-  if (!res.ok) {
-    throw new Error("Could not update the item");
+  if (!response.ok) {
+    // An expired or invalid token -- sign out so ProtectedRoute sends
+    // the user back to the login page.
+    if (response.status === 401 && token) {
+      useAuthStore.getState().logout();
+    }
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `Request failed with status ${response.status}`);
   }
-  return res.json();
-}
 
-// GET /users
-export async function fetchUsers(): Promise<ApiUser[]> {
-  const res = await fetch(`${API_URL}/users`);
-  if (!res.ok) {
-    throw new Error("Could not load users");
+  // DELETE replies 204 with no body.
+  if (response.status === 204) {
+    return undefined as T;
   }
-  return res.json();
+
+  return response.json();
 }
