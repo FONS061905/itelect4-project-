@@ -42,15 +42,29 @@ export interface Claim {
   createdAt: string;
 }
 
-// json-server generates its own ids and stores everything as JSON, so
-// ids come back as strings instead of numbers. Both types below are
-// DERIVED from User/Item, so those stay the single source of truth.
-export type ApiUser = Omit<User, "id"> & { id: string };
+// MongoDB makes its own ids and sends them as strings. Both types below
+// are DERIVED from User/Item, so those stay the single source of truth.
+export type ApiUser = Omit<User, "id"> & { id: string; email: string };
 
 export type ApiItem = Omit<Item, "id" | "reporterId"> & {
   id: string;
   reporterId: string;
 };
 
-// What we SEND when creating one -- no id yet, the server makes it.
-export type NewItem = Omit<ApiItem, "id">;
+// What we SEND when creating one -- no id, reporterId or createdAt;
+// the server sets those (the reporter comes from the token).
+export type NewItem = Omit<ApiItem, "id" | "reporterId" | "createdAt">;
+
+// POST /api/auth/login replies with this.
+export interface AuthResponse {
+  user: ApiUser;
+  token: string;
+}
+
+// A campus location from GET /api/locations. The code is its identity.
+export interface Location {
+  code: string;
+  name: string;
+  building: string;
+  floor: number;
+}

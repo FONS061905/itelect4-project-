@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import useAuthStore from "../store/authStore";
 import useUiStore from "../store/uiStore";
 
@@ -7,6 +8,13 @@ function Layout() {
   const toggleDarkMode = useUiStore((state) => state.toggleDarkMode);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const queryClient = useQueryClient();
+
+  // Drop the cached items too, so the next account never sees them.
+  const handleLogout = (): void => {
+    logout();
+    queryClient.clear();
+  };
 
   const base = "rounded px-3 py-1.5 text-sm";
   const activeLink = `${base} bg-blue-600 font-semibold text-white`;
@@ -22,14 +30,13 @@ function Layout() {
           <span className="mr-4 font-display text-lg font-semibold tracking-tight text-gray-900 dark:text-white">Lost &amp; Found</span>
           <NavLink to="/" end className={linkClass}>Dashboard</NavLink>
           <NavLink to="/items" className={linkClass}>Items</NavLink>
-          <NavLink to="/users" className={linkClass}>Users</NavLink>
           <NavLink to="/admin" className={linkClass}>Admin</NavLink>
 
           {user === null ? (
             <NavLink to="/login" className={linkClass}>Login</NavLink>
           ) : (
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="rounded px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300"
             >
               Logout ({user.name})

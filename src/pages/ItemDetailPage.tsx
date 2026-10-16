@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router";
 import type { ApiItem } from "../models";
 import { ItemStatus } from "../models";
-import { fetchItemById, updateItemStatus } from "../api/client";
+import { fetchItemById, updateItemStatus } from "../api/items";
 
 function ItemDetailPage() {
   const { id } = useParams<{ id: string }>();

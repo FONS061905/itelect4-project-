@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ComplaintCard from "../components/ComplaintCard";
 import type { ApiItem } from "../models";
 import { ItemStatus } from "../models";
-import { fetchItems, updateItemStatus } from "../api/client";
+import { fetchItems, updateItemStatus } from "../api/items";
 
 function AdminPage() {
   const queryClient = useQueryClient();
