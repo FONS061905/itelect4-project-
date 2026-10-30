@@ -33,7 +33,10 @@ function Layout() {
           <NavLink to="/admin" className={linkClass}>Admin</NavLink>
 
           {user === null ? (
-            <NavLink to="/login" className={linkClass}>Login</NavLink>
+            <>
+              <NavLink to="/login" className={linkClass}>Login</NavLink>
+              <NavLink to="/register" className={linkClass}>Register</NavLink>
+            </>
           ) : (
             <button
               onClick={handleLogout}

@@ -1,6 +1,17 @@
 import useAuthStore from "../store/authStore";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
+// The backend's address, from .env locally and from Vercel's settings
+// when deployed. Vite bakes it in at build time, so changing it means
+// rebuilding. No fallback: a missing value should say so, not quietly
+// call somebody's laptop.
+export const API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  throw new Error(
+    "VITE_API_URL is missing. Copy .env.example to .env, fill it in, " +
+      "and restart npm run dev.",
+  );
+}
 
 // Every request goes through here: it adds the JSON header, the
 // Bearer token when someone is logged in, and turns error replies into
@@ -17,7 +28,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
+  const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers,
   });

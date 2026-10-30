@@ -1,90 +1,91 @@
-import { useState, type FormEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
-import { loginApi, registerApi } from "../api/auth";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate } from "react-router";
+import { loginApi } from "../api/auth";
 import useAuthStore from "../store/authStore";
+import { loginSchema } from "../schemas/authSchema";
+import type { LoginFormValues } from "../schemas/authSchema";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function LoginPage() {
-  const [mode, setMode] = useState<"login" | "register">("login");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const submit = useMutation({
-    mutationFn: async () => {
-      // Register only creates the account, so log in right after it.
-      if (mode === "register") {
-        await registerApi({ name, email, password });
-      }
-      return loginApi({ email, password });
-    },
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    mode: "onBlur",
+    defaultValues: { email: "", password: "" },
+  });
+
+  const logIn = useMutation({
+    mutationFn: loginApi,
     onSuccess: ({ token, user }) => {
       login(token, user); // 1. put the real JWT + user in the store
       navigate("/items"); // 2. then send them to their items
     },
   });
 
-  const handleSubmit = (e: FormEvent): void => {
-    e.preventDefault();
-    submit.mutate();
+  const onSubmit = (values: LoginFormValues): void => {
+    logIn.mutate(values);
   };
-
-  const inputClass =
-    "w-full rounded border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white";
 
   return (
     <div className="max-w-sm">
       <h2 className="mb-4 font-display text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-        {mode === "login" ? "Login" : "Register"}
+        Login
       </h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        {mode === "register" && (
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Name"
-            required
-            className={inputClass}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+        <div className="grid gap-1.5">
+          <Label htmlFor="email" className="text-foreground">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            {...register("email")}
+            aria-invalid={errors.email ? true : undefined}
+            placeholder="juan@dlsl.edu.ph"
           />
-        )}
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          required
-          className={inputClass}
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          required
-          className={inputClass}
-        />
-        {submit.isError && (
-          <p className="text-sm text-red-700">{submit.error.message}</p>
-        )}
-        <button
-          type="submit"
-          disabled={submit.isPending}
-          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:bg-gray-400"
-        >
-          {submit.isPending ? "Please wait..." : mode === "login" ? "Log In" : "Create Account"}
-        </button>
+          {errors.email && (
+            <p className="text-sm text-red-600">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="password" className="text-foreground">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            {...register("password")}
+            aria-invalid={errors.password ? true : undefined}
+          />
+          {errors.password && (
+            <p className="text-sm text-red-600">{errors.password.message}</p>
+          )}
+        </div>
+
+        <Button type="submit" disabled={logIn.isPending} className="justify-self-start">
+          {logIn.isPending ? "Signing in..." : "Log In"}
+        </Button>
       </form>
-      <button
-        onClick={() => {
-          setMode(mode === "login" ? "register" : "login");
-          submit.reset();
-        }}
-        className="mt-3 text-sm text-blue-600 hover:underline dark:text-blue-400"
-      >
-        {mode === "login" ? "No account yet? Register" : "Have an account? Log in"}
-      </button>
+
+      {/* The API's own message, e.g. "Email or password is incorrect". */}
+      {logIn.isError && (
+        <p className="mt-4 text-sm text-red-700">{logIn.error.message}</p>
+      )}
+
+      <p className="mt-6 text-sm text-gray-600 dark:text-gray-400">
+        No account yet?{" "}
+        <Link to="/register" className="font-semibold text-blue-600 dark:text-blue-400">
+          Register
+        </Link>
+      </p>
     </div>
   );
 }
