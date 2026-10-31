@@ -1,0 +1,29 @@
+# GT6: GitHub runs these checks on every push, on a fresh Linux machine.
+name: CI
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Copies this repo, at the commit that was pushed, onto the machine.
+      - uses: actions/checkout@v4
+
+      # Installs Node 24 and keeps npm's download cache between runs.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # Installs exactly what package-lock.json lists.
+      - run: npm ci
+
+      # The three test files. No secrets: vite.config.ts gives the tests
+      # their own VITE_API_URL, and they never call the API.
+      - run: npm test
+
+      # tsc --noEmit, then vite build: type errors in src/ fail here,
+      # test files included.
+      - run: npm run build

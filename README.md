@@ -1,5 +1,7 @@
 # Lost & Found Tracker
 
+[![CI](https://github.com/FONS061905/itelect4-project-/actions/workflows/ci.yml/badge.svg)](https://github.com/FONS061905/itelect4-project-/actions/workflows/ci.yml)
+
 A web-based lost and found tracker built with a TypeScript Express backend and a Vite React frontend. The app stores items, claims, and user roles in memory for demo and semester project purposes.
 
 ## Blueprints Defined (`types/index.ts`)
