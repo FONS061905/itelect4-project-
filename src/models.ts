@@ -61,6 +61,16 @@ export interface AuthResponse {
   token: string;
 }
 
+// GT5: what POST /api/ai sends back. The same rule as the Review type in
+// itelect4-backend's src/schemas/itemHelp.ts: nothing checks that they agree.
+export interface AiItemHelp {
+  summary: string;
+  category: "bag" | "electronics" | "clothing" | "keys" | "documents" | "other";
+  tags: string[];
+  improvements: string[];
+  readiness: "ready" | "almost" | "not-yet";
+}
+
 // A campus location from GET /api/locations. The code is its identity.
 export interface Location {
   code: string;

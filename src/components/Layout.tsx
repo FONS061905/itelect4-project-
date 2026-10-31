@@ -30,6 +30,8 @@ function Layout() {
           <span className="mr-4 font-display text-lg font-semibold tracking-tight text-gray-900 dark:text-white">Lost &amp; Found</span>
           <NavLink to="/" end className={linkClass}>Dashboard</NavLink>
           <NavLink to="/items" className={linkClass}>Items</NavLink>
+          {/* GT5: the one page that talks to Gemini (through the API) */}
+          <NavLink to="/ai-helper" className={linkClass}>AI Helper</NavLink>
           <NavLink to="/admin" className={linkClass}>Admin</NavLink>
 
           {user === null ? (

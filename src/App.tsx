@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminPage from "./pages/AdminPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import ItemHelperPage from "./pages/ItemHelperPage";
 
 export default function App() {
   return (
@@ -21,6 +22,8 @@ export default function App() {
           <Route path="items" element={<ItemsPage />} />
           <Route path="items/:id" element={<ItemDetailPage />} />
           <Route path="admin" element={<AdminPage />} />
+          {/* GT5: behind the same guard -- the API refuses it without a token. */}
+          <Route path="ai-helper" element={<ItemHelperPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>
